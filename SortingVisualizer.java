@@ -8,9 +8,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SortingVisualizer {
-    private JPanel sortingPanel; // Custom panel for visualization
-    private int[] data = {4, 2, 7, 1, 9, 5, 9, 2, 6};
+    private SortingPanel sortingPanel; // Custom panel for visualization
+    private int[] data = {4, 2, 7, 1, 9, 5, 9, 2, 6, 7, 5, 4, 3, 2};
     private int sortingSpeed = 100; // Array to be sorted
+    private boolean isPaused = false; // Variable to control pause/resume
 
     private JPanel controlPanel; // Control panel for buttons
     private boolean isSorting = false; // To track if sorting is in progress
@@ -43,11 +44,10 @@ public class SortingVisualizer {
         JLabel headingLabel = new JLabel("Sorting Visualizer");
         headingLabel.setFont(new Font("Times Roman", Font.BOLD, 40)); // Adjust font and size
         headingPanel.add(headingLabel);
-        
 
         // Update the top insets to add padding from the top
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10); // Updated top insets to 40px, other insets remain the same
+        gbc.insets = new Insets(40, 10, 10, 10); // Updated top insets to 40px, other insets remain the same
 
         leftPanel.add(headingPanel, BorderLayout.NORTH);
 
@@ -58,7 +58,7 @@ public class SortingVisualizer {
         gbc.anchor = GridBagConstraints.WEST;
 
         // Create four buttons
-        JButton button1 = createButton("Button 1");
+        JButton button1 = createButton("Bubble Sort");
         JButton button2 = createButton("Button 2");
         JButton button3 = createButton("Button 3");
         JButton button4 = createButton("Button 4");
@@ -74,6 +74,18 @@ public class SortingVisualizer {
         controlPanel.add(button3, gbc);
         gbc.gridx = 1;
         controlPanel.add(button4, gbc);
+
+        // Create the "Reset" button and add it to the control panel
+        JButton resetButton = createButton("Reset");
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        controlPanel.add(resetButton, gbc);
+
+        // Create the "Pause" button and add it to the control panel
+        JButton pauseButton = createButton("Pause");
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        controlPanel.add(pauseButton, gbc);
 
         leftPanel.add(controlPanel, BorderLayout.CENTER);
 
@@ -109,7 +121,7 @@ public class SortingVisualizer {
         // Create a custom border with rounded corners and thicker line
         button.setBorder(new LineBorder(Color.BLACK, 3, true)); // You can adjust the line thickness
 
-        if (text.equals("Button 1")) {
+        if (text.equals("Bubble Sort")) {
             button.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -122,7 +134,8 @@ public class SortingVisualizer {
                             @Override
                             public void run() {
                                 isSorting = true;
-                                BubbleSort.sort(data, sortingPanel, sortingSpeed); // Pass sortingSpeed
+                                BubbleSort bubbleSort = new BubbleSort();
+                                bubbleSort.sort(data, sortingPanel, sortingSpeed); // Pass sortingSpeed
                                 isSorting = false;
                                 // Re-enable the button after sorting
                                 button.setEnabled(true);
@@ -132,14 +145,30 @@ public class SortingVisualizer {
                     }
                 }
             });
-        } else {
+        } else if (text.equals("Reset")) {
             button.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    JOptionPane.showMessageDialog(null, "Button '" + text + "' was clicked!");
+                    if (!isSorting) {
+                        // Reset the array to its initial state
+                        data = new int[]{4, 2, 7, 1, 9, 5, 9, 2, 6, 7, 5, 4, 3, 2};
+                        // Clear the color map
+                        colorMap.clear();
+                        // Update the sorting panel with the reset array
+                        sortingPanel.setArray(data);
+                    }
+                }
+            });
+        } else if (text.equals("Pause")) {
+            button.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    // Toggle the pause state
+                    isPaused = !isPaused;
                 }
             });
         }
+        // Add more actions for other buttons if needed
 
         return button;
     }
@@ -198,8 +227,8 @@ public class SortingVisualizer {
         });
     }
 
-    public static class BubbleSort {
-        public static void sort(int[] arr, JPanel panel, int sortingSpeed) {
+    public class BubbleSort {
+        public void sort(int[] arr, SortingPanel panel, int sortingSpeed) {
             int n = arr.length;
             boolean swapped;
             for (int i = 0; i < n - 1; i++) {
@@ -212,12 +241,14 @@ public class SortingVisualizer {
                         arr[j + 1] = temp;
 
                         // Update the display in the sorting panel
-                        if (panel instanceof SortingPanel) {
-                            ((SortingPanel) panel).setArray(arr);
-                        }
+                        panel.setArray(arr);
 
                         // Sleep for a short period to visualize the sorting process
                         try {
+                            while (isPaused) {
+                                // Pause the sorting
+                                Thread.sleep(100);
+                            }
                             Thread.sleep(sortingSpeed); // Use sortingSpeed
                         } catch (InterruptedException e) {
                             e.printStackTrace();
