@@ -11,7 +11,8 @@ public class SortingVisualizer {
     private SortingPanel sortingPanel; // Custom panel for visualization
     private int[] data = {4, 2, 7, 1, 9, 5, 9, 2, 6, 7, 5, 4, 3, 2};
     private int sortingSpeed = 100; // Array to be sorted
-    private boolean isPaused = false; // Variable to control pause/resume
+    private boolean isPaused = false;
+    private JButton inputArrayButton; // Variable to control pause/resume
 
     private JPanel controlPanel; // Control panel for buttons
     private boolean isSorting = false; // To track if sorting is in progress
@@ -86,6 +87,10 @@ public class SortingVisualizer {
         gbc.gridx = 0;
         gbc.gridy = 2;
         controlPanel.add(pauseButton, gbc);
+        inputArrayButton = createButton("Input Array");
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        controlPanel.add(inputArrayButton, gbc);
 
         leftPanel.add(controlPanel, BorderLayout.CENTER);
 
@@ -95,6 +100,32 @@ public class SortingVisualizer {
         // Create a speed control panel
         JPanel speedControlPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
         JButton speedButton = createButton("Change Speed");
+        inputArrayButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!isSorting) {
+                    // Show an input dialog to get a new array from the user
+                    String input = JOptionPane.showInputDialog(frame, "Enter an array of integers (comma-separated):");
+                    if (input != null) {
+                        try {
+                            // Parse the user input into an integer array
+                            String[] inputValues = input.split(",");
+                            int[] newArray = new int[inputValues.length];
+                            for (int i = 0; i < inputValues.length; i++) {
+                                newArray[i] = Integer.parseInt(inputValues[i].trim());
+                            }
+
+                            // Update the data array and sorting panel with the new array
+                            data = newArray;
+                            sortingPanel.setArray(data);
+                        } catch (NumberFormatException ex) {
+                            JOptionPane.showMessageDialog(frame, "Invalid input. Please enter a valid array of integers.");
+                        }
+                    }
+                }
+            }
+        });
+
 
         speedButton.addActionListener(new ActionListener() {
             @Override
