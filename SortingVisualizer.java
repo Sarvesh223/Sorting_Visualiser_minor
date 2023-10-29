@@ -11,12 +11,13 @@ public class SortingVisualizer {
     private SortingPanel sortingPanel; // Custom panel for visualization
     private int[] data = {4, 2, 7, 1, 9, 5, 9, 2, 6, 7, 5, 4, 3, 2};
     private int sortingSpeed = 100; // Array to be sorted
-    private boolean isPaused = false;
-    private JButton inputArrayButton; // Variable to control pause/resume
+    private boolean isPaused = false; // Variable to control pause/resume
+    private JButton inputArrayButton;
 
     private JPanel controlPanel; // Control panel for buttons
     private boolean isSorting = false; // To track if sorting is in progress
     private Map<Integer, Color> colorMap = new HashMap<>(); // Map for number-color associations
+    private JLabel complexityLabel; // Label to display time and space complexity
 
     public SortingVisualizer() {
         // Create a JFrame (main window)
@@ -46,17 +47,15 @@ public class SortingVisualizer {
         headingLabel.setFont(new Font("Times Roman", Font.BOLD, 40)); // Adjust font and size
         headingPanel.add(headingLabel);
 
-        // Update the top insets to add padding from the top
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(40, 10, 10, 10); // Updated top insets to 40px, other insets remain the same
-
         leftPanel.add(headingPanel, BorderLayout.NORTH);
 
         // Button Panel
         controlPanel = new JPanel(new GridBagLayout()); // Initialize control panel
 
         // Create GridBagConstraints for proper alignment
+        GridBagConstraints gbc = new GridBagConstraints();
         gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(40, 10, 10, 10); // Updated top insets to 40px, other insets remain the same
 
         // Create four buttons
         JButton button1 = createButton("Bubble Sort");
@@ -126,17 +125,14 @@ public class SortingVisualizer {
             }
         });
 
-
-        speedButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Action to perform when the speed button is clicked
-                showSpeedControlDialog(speedButton);
-            }
-        });
-
         speedControlPanel.add(speedButton);
         frame.add(speedControlPanel, BorderLayout.SOUTH);
+
+        // Create the complexity label
+        complexityLabel = new JLabel("Time Complexity: N/A | Space Complexity: N/A");
+        complexityLabel.setHorizontalAlignment(SwingConstants.RIGHT); // Align the label to the right
+        complexityLabel.setBorder(BorderFactory.createEmptyBorder(650, 0, 0, 10)); // Add padding
+        frame.add(complexityLabel, BorderLayout.EAST); // Change to EAST
 
         // Make the frame fit its components
         frame.pack();
@@ -166,10 +162,28 @@ public class SortingVisualizer {
                             public void run() {
                                 isSorting = true;
                                 BubbleSort bubbleSort = new BubbleSort();
+
+                                // Calculate the start time for measuring time complexity
+                                long startTime = System.nanoTime();
+
                                 bubbleSort.sort(data, sortingPanel, sortingSpeed); // Pass sortingSpeed
+
+                                // Calculate the end time for measuring time complexity
+                                long endTime = System.nanoTime();
+
                                 isSorting = false;
+
                                 // Re-enable the button after sorting
                                 button.setEnabled(true);
+
+                                // Calculate time complexity
+                                long timeComplexity = endTime - startTime;
+
+                                // Calculate space complexity (e.g., for an array, you can use data.length * 4 bytes)
+                                long spaceComplexity = data.length * 4;
+
+                                // Update the complexity label with the results
+                                complexityLabel.setText("Time Complexity: " + timeComplexity + " ns | Space Complexity: " + spaceComplexity + " bytes");
                             }
                         });
                         sortingThread.start();
@@ -187,6 +201,8 @@ public class SortingVisualizer {
                         colorMap.clear();
                         // Update the sorting panel with the reset array
                         sortingPanel.setArray(data);
+                        // Reset the complexity label
+                        complexityLabel.setText("Time Complexity: N/A | Space Complexity: N/A");
                     }
                 }
             });
@@ -198,8 +214,16 @@ public class SortingVisualizer {
                     isPaused = !isPaused;
                 }
             });
+        } else if (text.equals("Change Speed")) {
+            button.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    // Action to perform when the speed button is clicked
+                    showSpeedControlDialog(button);
+                }
+            });
         }
-        // Add more actions for other buttons if needed
+        // Add more actions for other buttons
 
         return button;
     }
@@ -366,6 +390,7 @@ public class SortingVisualizer {
             if (colorMap.containsKey(number)) {
                 return colorMap.get(number);
             } else {
+
                 // Generate a random color for the number
                 Color randomColor = new Color((int) (Math.random() * 0x1000000));
                 colorMap.put(number, randomColor);
