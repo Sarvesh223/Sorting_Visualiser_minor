@@ -99,6 +99,8 @@ public class SortingVisualizer {
         // Create a speed control panel
         JPanel speedControlPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
         JButton speedButton = createButton("Change Speed");
+        speedControlPanel.add(speedButton);
+        frame.add(speedControlPanel, BorderLayout.SOUTH);
         inputArrayButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -125,8 +127,7 @@ public class SortingVisualizer {
             }
         });
 
-        speedControlPanel.add(speedButton);
-        frame.add(speedControlPanel, BorderLayout.SOUTH);
+        
 
         // Create the complexity label
         complexityLabel = new JLabel("Time Complexity: N/A | Space Complexity: N/A");
@@ -146,7 +147,7 @@ public class SortingVisualizer {
         button.setPreferredSize(new Dimension(200, 75)); // Set a fixed button size
 
         // Create a custom border with rounded corners and thicker line
-        button.setBorder(new LineBorder(Color.BLACK, 3, true)); // You can adjust the line thickness
+        button.setBorder(new LineBorder(Color.BLACK, 3, true)); 
 
         if (text.equals("Bubble Sort")) {
             button.addActionListener(new ActionListener() {
@@ -274,13 +275,7 @@ public class SortingVisualizer {
         dialog.setVisible(true);
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                new SortingVisualizer();
-            }
-        });
-    }
+    
 
     public class BubbleSort {
         public void sort(int[] arr, SortingPanel panel, int sortingSpeed) {
@@ -397,5 +392,12 @@ public class SortingVisualizer {
                 return randomColor;
             }
         }
+    }
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                new SortingVisualizer();
+            }
+        });
     }
 }
