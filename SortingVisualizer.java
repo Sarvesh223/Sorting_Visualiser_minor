@@ -6,6 +6,16 @@ import java.awt.event.ActionListener;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+
+import java.util.List;
+
+
 
 
 public class SortingVisualizer {
@@ -14,14 +24,151 @@ public class SortingVisualizer {
     private int sortingSpeed = 400;
     private boolean isPaused = false;
     private JButton inputArrayButton;
+    private List<Point> scatterPoints;
+    private XYSeries scatterChartSeries;
     private JLabel algorithmLabel;
-    private JButton floatingButton; // Declare the floating button
+    private XYSeries bubbleSortSeries; 
     private JFrame newWindowFrame;
     private JPanel controlPanel;
     private JTextArea algorithmStepsTextArea; 
     private boolean isSorting = false;
     private Map<Integer, Color> colorMap = new HashMap<>();
     private JLabel complexityLabel;
+    private String getBubbleSortCode() {
+        // Return the code for Bubble Sort
+        return "public void bubbleSort(int[] arr) {\n" +
+        "    int n = arr.length;\n" +
+        "    boolean swapped;\n\n" +
+        "    for (int i = 0; i < n - 1; i++) {\n" +
+        "        swapped = false;\n" +
+        "        for (int j = 0; j < n - i - 1; j++) {\n" +
+        "            if (arr[j] > arr[j + 1]) {\n" +
+        "                // Swap arr[j] and arr[j + 1]\n" +
+        "                int temp = arr[j];\n" +
+        "                arr[j] = arr[j + 1];\n" +
+        "                arr[j + 1] = temp;\n" +
+        "                swapped = true;\n" +
+        "            }\n" +
+        "        }\n\n" +
+        "        // If no two elements were swapped by inner loop, the array is sorted\n" +
+        "        if (!swapped) {\n" +
+        "            break;\n" +
+        "        }\n" +
+        "    }\n" +
+        "}";
+    }
+
+    private String getInsertionSortCode() {
+        // Return the code for Insertion Sort
+        return "public void insertionSort(int[] arr) {\n" +
+        "    int n = arr.length;\n" +
+        "    for (int i = 1; i < n; ++i) {\n" +
+        "        int key = arr[i];\n" +
+        "        int j = i - 1;\n\n" +
+        "        // Move elements of arr[0..i-1] that are greater than key to one position ahead of their current position\n" +
+        "        while (j >= 0 && arr[j] > key) {\n" +
+        "            arr[j + 1] = arr[j];\n" +
+        "            j = j - 1;\n" +
+        "        }\n" +
+        "        arr[j + 1] = key;\n" +
+        "    }\n" +
+        "}";
+    }
+
+    private String getMergeSortCode() {
+        // Return the code for Merge Sort
+        return "public void mergeSort(int[] arr) {\n" +
+        "    mergeSort(arr, 0, arr.length - 1);\n" +
+        "}\n\n" +
+        "private void mergeSort(int[] arr, int l, int r) {\n" +
+        "    if (l < r) {\n" +
+        "        int m = (l + r) / 2;\n" +
+        "        mergeSort(arr, l, m);\n" +
+        "        mergeSort(arr, m + 1, r);\n" +
+        "        merge(arr, l, m, r);\n" +
+        "    }\n" +
+        "}\n\n" +
+        "private void merge(int[] arr, int l, int m, int r) {\n" +
+        "    int n1 = m - l + 1;\n" +
+        "    int n2 = r - m;\n" +
+        "    int[] left = new int[n1];\n" +
+        "    int[] right = new int[n2];\n\n" +
+        "    for (int i = 0; i < n1; ++i) {\n" +
+        "        left[i] = arr[l + i];\n" +
+        "    }\n" +
+        "    for (int j = 0; j < n2; ++j) {\n" +
+        "        right[j] = arr[m + 1 + j];\n" +
+        "    }\n" +
+        "    int i = 0, j = 0;\n" +
+        "    int k = l;\n\n" +
+        "    while (i < n1 && j < n2) {\n" +
+        "        if (left[i] <= right[j]) {\n" +
+        "            arr[k] = left[i];\n" +
+        "            i++;\n" +
+        "        } else {\n" +
+        "            arr[k] = right[j];\n" +
+        "            j++;\n" +
+        "        }\n" +
+        "        k++;\n" +
+        "    }\n\n" +
+        "    while (i < n1) {\n" +
+        "        arr[k] = left[i];\n" +
+        "        i++;\n" +
+        "        k++;\n" +
+        "    }\n\n" +
+        "    while (j < n2) {\n" +
+        "        arr[k] = right[j];\n" +
+        "        j++;\n" +
+        "        k++;\n" +
+        "    }\n" +
+        "}";
+    }
+
+    private String getQuickSortCode() {
+        // Return the code for Quick Sort
+        return "public void quickSort(int[] arr) {\n" +
+        "    quickSort(arr, 0, arr.length - 1);\n" +
+        "}\n\n" +
+        "private void quickSort(int[] arr, int low, int high) {\n" +
+        "    if (low < high) {\n" +
+        "        int pi = partition(arr, low, high);\n" +
+        "        quickSort(arr, low, pi - 1);\n" +
+        "        quickSort(arr, pi + 1, high);\n" +
+        "    }\n" +
+        "}\n\n" +
+        "private int partition(int[] arr, int low, int high) {\n" +
+        "    int pivot = arr[high];\n" +
+        "    int i = (low - 1);\n" +
+        "    for (int j = low; j < high; j++) {\n" +
+        "        if (arr[j] < pivot) {\n" +
+        "            i++;\n" +
+        "            swap(arr, i, j);\n" +
+        "        }\n" +
+        "    }\n" +
+        "    swap(arr, i + 1, high);\n" +
+        "    return i + 1;\n" +
+        "}\n\n" +
+        "private void swap(int[] arr, int i, int j) {\n" +
+        "    int temp = arr[i];\n" +
+        "    arr[i] = arr[j];\n" +
+        "    arr[j] = temp;\n" +
+        "}";
+    }
+    interface SortingCodeProvider {
+        String getCode();
+    }
+    private long measureTime(Runnable code) {
+        long startTime = System.nanoTime();
+        code.run();
+        long endTime = System.nanoTime();
+        return endTime - startTime;
+    }
+
+    private long measureSpace(Runnable code) {
+        // Measure space complexity logic (e.g., memory usage)
+        // Return the space complexity in bytes
+        return 0; // Placeholder, replace with actual measurement logic
+    }
 
     public SortingVisualizer() {
         // Create a JFrame (main window)
@@ -55,10 +202,10 @@ public class SortingVisualizer {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(40, 10, 10, 10);
 
-        JButton button1 = createButton("Bubble Sort");
-        JButton button2 = createButton("Insertion Sort");
-        JButton button3 = createButton("Merge Sort");
-        JButton button4 = createButton("Quick Sort");
+        JButton button1 = createSortingButton("Bubble Sort",this::getBubbleSortCode);
+        JButton button2 = createSortingButton("Insertion Sort",this::getInsertionSortCode);
+        JButton button3 = createSortingButton("Merge Sort",this::getMergeSortCode);
+        JButton button4 = createSortingButton("Quick Sort",this::getQuickSortCode);
 
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -88,6 +235,7 @@ public class SortingVisualizer {
         gbc.gridx = 1;
         gbc.gridy = 3;
         controlPanel.add(openwindowButton, gbc);
+        
 
         leftPanel.add(controlPanel, BorderLayout.CENTER);
 
@@ -98,6 +246,7 @@ public class SortingVisualizer {
         JButton speedButton = createButton("Change Speed");
         speedControlPanel.add(speedButton);
         frame.add(speedControlPanel, BorderLayout.NORTH);
+        
         inputArrayButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -138,7 +287,43 @@ public class SortingVisualizer {
 
         algorithmStepsTextArea = new JTextArea(20, 30);
         algorithmStepsTextArea.setEditable(false);
+
+        bubbleSortSeries = new XYSeries("Bubble Sort");
+       
+        
     }
+    private JButton createSortingButton(String text, SortingCodeProvider codeProvider) {
+        JButton button = createButton(text);
+
+        button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!isSorting) {
+                    button.setEnabled(false);
+                    algorithmLabel.setText("Selected Algorithm: " + text);
+
+                    // Read and display the code in a new window
+                    String code = codeProvider.getCode();
+                    displayCodeInNewWindow(code, text);
+
+                    
+                }
+            }
+        });
+
+        return button;
+    }
+    private void displayCodeInNewWindow(String code, String algorithmName) {
+        // Display the code in a new window
+        JFrame codeFrame = new JFrame("Code for " + algorithmName);
+        JTextArea codeTextArea = new JTextArea(code);
+        JScrollPane codeScrollPane = new JScrollPane(codeTextArea);
+        codeFrame.add(codeScrollPane);
+        codeFrame.setSize(600, 400);
+        codeFrame.setLocationRelativeTo(null);
+        codeFrame.setVisible(true);
+    }
+    
 
 
     private JButton createButton(String text) {
@@ -146,39 +331,43 @@ public class SortingVisualizer {
         button.setPreferredSize(new Dimension(200, 75));
         button.setBorder(new LineBorder(Color.BLACK, 3, true));
 
-        if (text.equals("Bubble Sort")) {
-            button.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (!isSorting) {
-                        button.setEnabled(false);
-                        algorithmLabel.setText("Selected Algorithm: Bubble Sort");
+        // Inside createButton method for "Bubble Sort"
+if (text.equals("Bubble Sort")) {
+    button.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (!isSorting) {
+                button.setEnabled(false);
+                algorithmLabel.setText("Selected Algorithm: Bubble Sort");
 
-                        Thread sortingThread = new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                isSorting = true;
-                                BubbleSort bubbleSort = new BubbleSort();
-                                long startTime = System.nanoTime();
+                ScatterChartGenerator scatterChartGenerator = new ScatterChartGenerator(data);
 
-                                bubbleSort.sort(data, sortingPanel, sortingSpeed);
+                Thread sortingThread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        isSorting = true;
+                        BubbleSort bubbleSort = new BubbleSort(scatterChartGenerator);
+                        long startTime = System.nanoTime();
 
-                                long endTime = System.nanoTime();
+                        bubbleSort.sort(data, sortingPanel, sortingSpeed);
 
-                                isSorting = false;
-                                button.setEnabled(true);
+                        long endTime = System.nanoTime();
 
-                                long timeComplexity = endTime - startTime;
-                                long spaceComplexity = data.length * 4;
+                        isSorting = false;
+                        button.setEnabled(true);
 
-                                complexityLabel.setText("Time Complexity: " + timeComplexity + " ns | Space Complexity: " + spaceComplexity + " bytes");
-                            }
-                        });
-                        sortingThread.start();
+                        long timeComplexity = endTime - startTime;
+                        long spaceComplexity = data.length * 4;
+
+                        complexityLabel.setText("Time Complexity: " + timeComplexity + " ns | Space Complexity: " + spaceComplexity + " bytes");
                     }
-                }
-            });
-        } else if (text.equals("Insertion Sort")) {
+                });
+                sortingThread.start();
+            }
+        }
+    });
+}
+else if (text.equals("Insertion Sort")) {
             button.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -292,12 +481,23 @@ public class SortingVisualizer {
                 }
             });
         }
+        else if (text.equals("Comparison")) {
+            button.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (!isSorting) {
+                        // Call the method to compare algorithms
+                        compareAlgorithms();
+                    }
+                }
+            });
+        }
         return button;
     }
     // Add this method to create and display a new window
     private void openNewWindow() {
         // Create a new JFrame for the additional window
-        newWindowFrame = new JFrame("New Window");
+        newWindowFrame = new JFrame("Algorithm Steps");
         newWindowFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         // Create a new panel for displaying algorithm steps
@@ -314,6 +514,99 @@ public class SortingVisualizer {
     private void updateAlgorithmSteps(String step) {
         SwingUtilities.invokeLater(() -> algorithmStepsTextArea.append(step + "\n"));
     }
+    private void compareAlgorithms() {
+        // Perform comparisons and gather results
+        int numAlgorithms = 4; // Adjust based on the number of sorting algorithms
+    
+        long[] timeResults = new long[numAlgorithms];
+        long[] spaceResults = new long[numAlgorithms];
+    
+        // Example 1: Bubble Sort
+        timeResults[0] = measureTime(() -> {
+            BubbleSort bubbleSort = new BubbleSort(new ScatterChartGenerator(data));
+            bubbleSort.sort(Arrays.copyOf(data, data.length), sortingPanel, sortingSpeed);
+        });
+        spaceResults[0] = measureSpace(() -> {
+            BubbleSort bubbleSort = new BubbleSort(new ScatterChartGenerator(data));
+            bubbleSort.sort(Arrays.copyOf(data, data.length), sortingPanel, sortingSpeed);
+        });
+    
+        // Example 2: Insertion Sort
+        timeResults[1] = measureTime(() -> {
+            InsertionSort insertionSort = new InsertionSort();
+            insertionSort.sort(Arrays.copyOf(data, data.length), sortingPanel, sortingSpeed);
+        });
+        spaceResults[1] = measureSpace(() -> {
+            InsertionSort insertionSort = new InsertionSort();
+            insertionSort.sort(Arrays.copyOf(data, data.length), sortingPanel, sortingSpeed);
+        });
+    
+        // Example 3: Merge Sort
+        timeResults[2] = measureTime(() -> {
+            MergeSort mergeSort = new MergeSort();
+            mergeSort.sort(Arrays.copyOf(data, data.length), sortingPanel, sortingSpeed);
+        });
+        spaceResults[2] = measureSpace(() -> {
+            MergeSort mergeSort = new MergeSort();
+            mergeSort.sort(Arrays.copyOf(data, data.length), sortingPanel, sortingSpeed);
+        });
+    
+        // Example 4: Quick Sort
+        timeResults[3] = measureTime(() -> {
+            QuickSort quickSort = new QuickSort();
+            quickSort.sort(Arrays.copyOf(data, data.length), sortingPanel, sortingSpeed);
+        });
+        spaceResults[3] = measureSpace(() -> {
+            QuickSort quickSort = new QuickSort();
+            quickSort.sort(Arrays.copyOf(data, data.length), sortingPanel, sortingSpeed);
+        });
+    
+        // Display the results in a line chart
+        createComparisonChart(timeResults, spaceResults);
+    }
+    
+    
+    
+    private void createComparisonChart(long[] timeResults, long[] spaceResults) {
+        // Create a dataset for the line chart
+        XYSeriesCollection dataset = new XYSeriesCollection();
+    
+        XYSeries timeSeries = new XYSeries("Time Complexity");
+        for (int i = 0; i < timeResults.length; i++) {
+            timeSeries.add(i + 1, timeResults[i]);
+        }
+        dataset.addSeries(timeSeries);
+    
+        XYSeries spaceSeries = new XYSeries("Space Complexity");
+        for (int i = 0; i < spaceResults.length; i++) {
+            spaceSeries.add(i + 1, spaceResults[i]);
+        }
+        dataset.addSeries(spaceSeries);
+    
+        // Create the line chart
+        JFreeChart chart = ChartFactory.createXYLineChart(
+                "Sorting Algorithm Comparison",
+                "Algorithm",
+                "Complexity",
+                dataset,
+                PlotOrientation.VERTICAL,
+                true,
+                true,
+                false
+        );
+    
+        // Display the chart in a new window
+        JFrame chartFrame = new JFrame("Algorithm Comparison Chart");
+        ChartPanel chartPanel = new ChartPanel(chart);
+        chartFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        chartFrame.getContentPane().add(chartPanel, BorderLayout.CENTER);
+        chartFrame.setSize(800, 600);
+        chartFrame.setLocationRelativeTo(null);
+        chartFrame.setVisible(true);
+    }
+    
+    
+    
 
     private void showSpeedControlDialog(Component parentComponent) {
         JDialog dialog = new JDialog();
@@ -366,9 +659,16 @@ public class SortingVisualizer {
     
 //sorting Algorithms /////////////////////////////////////////////////////////////
 public class BubbleSort {
+    private ScatterChartGenerator scatterChartGenerator;
+
+    public BubbleSort(ScatterChartGenerator scatterChartGenerator) {
+        this.scatterChartGenerator = scatterChartGenerator;
+    }
+
     public void sort(int[] arr, SortingPanel panel, int sortingSpeed) {
         int n = arr.length;
         boolean swapped;
+
         for (int i = 0; i < n - 1; i++) {
             swapped = false;
             for (int j = 0; j < n - i - 1; j++) {
@@ -384,6 +684,9 @@ public class BubbleSort {
                     updateAlgorithmSteps("Comparing elements: " + arr[j] + " and " + arr[j + 1]);
 
                     swapped = true;
+
+                    // Notify ScatterChartGenerator about the changes in the array
+                    scatterChartGenerator.updateScatterData(Arrays.copyOf(arr, arr.length));
                 }
             }
 
@@ -403,7 +706,12 @@ public class BubbleSort {
             e.printStackTrace();
         }
     }
+
+    private void updateAlgorithmSteps(String step) {
+        SwingUtilities.invokeLater(() -> algorithmStepsTextArea.append(step + "\n"));
+    }
 }
+
 public class InsertionSort {
     public void sort(int[] arr, SortingPanel panel, int sortingSpeed) {
         int n = arr.length;
@@ -596,6 +904,7 @@ public class QuickSort {
             this.arrayToDisplay = arr;
             repaint(); // Trigger a repaint to update the display
         }
+        
 
         @Override
     protected void paintComponent(Graphics g) {
@@ -649,8 +958,10 @@ public class QuickSort {
                 int labelY = y - 5; // Adjust for position above the bar
                 g.drawString(text, labelX, labelY);
             }
+             
             
         }
+       
     }
 
 
