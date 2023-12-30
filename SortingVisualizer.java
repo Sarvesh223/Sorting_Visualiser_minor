@@ -14,10 +14,6 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 import java.util.List;
-
-
-
-
 public class SortingVisualizer {
     private SortingPanel sortingPanel;
     private int[] data = {4, 2, 7, 1, 9, 5, 9, 2, 6, 7, 5, 4, 3, 2};
@@ -167,7 +163,7 @@ public class SortingVisualizer {
     private long measureSpace(Runnable code) {
         // Measure space complexity logic (e.g., memory usage)
         // Return the space complexity in bytes
-        return 0; // Placeholder, replace with actual measurement logic
+        return 0; 
     }
 
     public SortingVisualizer() {
@@ -494,7 +490,7 @@ else if (text.equals("Insertion Sort")) {
         }
         return button;
     }
-    // Add this method to create and display a new window
+    //  this method to create and display a new window
     private void openNewWindow() {
         // Create a new JFrame for the additional window
         newWindowFrame = new JFrame("Algorithm Steps");
@@ -516,12 +512,12 @@ else if (text.equals("Insertion Sort")) {
     }
     private void compareAlgorithms() {
         // Perform comparisons and gather results
-        int numAlgorithms = 4; // Adjust based on the number of sorting algorithms
+        int numAlgorithms = 4; // the number of sorting algorithms
     
         long[] timeResults = new long[numAlgorithms];
         long[] spaceResults = new long[numAlgorithms];
     
-        // Example 1: Bubble Sort
+        
         timeResults[0] = measureTime(() -> {
             BubbleSort bubbleSort = new BubbleSort(new ScatterChartGenerator(data));
             bubbleSort.sort(Arrays.copyOf(data, data.length), sortingPanel, sortingSpeed);
@@ -531,7 +527,7 @@ else if (text.equals("Insertion Sort")) {
             bubbleSort.sort(Arrays.copyOf(data, data.length), sortingPanel, sortingSpeed);
         });
     
-        // Example 2: Insertion Sort
+        
         timeResults[1] = measureTime(() -> {
             InsertionSort insertionSort = new InsertionSort();
             insertionSort.sort(Arrays.copyOf(data, data.length), sortingPanel, sortingSpeed);
@@ -541,7 +537,7 @@ else if (text.equals("Insertion Sort")) {
             insertionSort.sort(Arrays.copyOf(data, data.length), sortingPanel, sortingSpeed);
         });
     
-        // Example 3: Merge Sort
+        
         timeResults[2] = measureTime(() -> {
             MergeSort mergeSort = new MergeSort();
             mergeSort.sort(Arrays.copyOf(data, data.length), sortingPanel, sortingSpeed);
@@ -551,7 +547,7 @@ else if (text.equals("Insertion Sort")) {
             mergeSort.sort(Arrays.copyOf(data, data.length), sortingPanel, sortingSpeed);
         });
     
-        // Example 4: Quick Sort
+        
         timeResults[3] = measureTime(() -> {
             QuickSort quickSort = new QuickSort();
             quickSort.sort(Arrays.copyOf(data, data.length), sortingPanel, sortingSpeed);
@@ -648,13 +644,17 @@ else if (text.equals("Insertion Sort")) {
         dialog.setVisible(true);
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                new SortingVisualizer();
-            }
-        });
-    }
+// SortingVisualizer.java
+
+public static void main(String[] args) {
+    SwingUtilities.invokeLater(new Runnable() {
+        public void run() {
+            SortingVisualizer sortingVisualizer = new SortingVisualizer();
+           
+        }
+    });
+}
+
 
     
 //sorting Algorithms /////////////////////////////////////////////////////////////
@@ -896,7 +896,7 @@ public class QuickSort {
     
     
 
-    // Define the custom JPanel for visualization
+    //  the custom JPanel for visualization
     private class SortingPanel extends JPanel {
         private int[] arrayToDisplay;
 
@@ -910,19 +910,19 @@ public class QuickSort {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        // Calculate the padding for the top, left, right, and bottom
+        //  the padding for the top, left, right, and bottom
         int paddingTop = 20;
         int paddingLeft = 40;
         int paddingRight = 20;
         int paddingBottom = 20;
 
-        // Define the rectangular area to draw the background, considering padding
+        //  the rectangular area to draw the background, considering padding
         int rectX = paddingLeft;
         int rectY = paddingTop;
         int rectWidth = getWidth() - paddingLeft - paddingRight;
         int rectHeight = getHeight() - paddingTop - paddingBottom;
 
-        // Draw a white background inside the rectangular box
+        //  a white background inside the rectangular box
         g.setColor(Color.WHITE);
         g.fillRect(rectX, rectY, rectWidth, rectHeight);
 
@@ -938,7 +938,7 @@ public class QuickSort {
                 int x = rectX + i * barWidth;
                 int y = rectY + (maxBarHeight - barHeight);
             
-                // Assign a unique color to each number
+                //  a unique color to each number
                 Color barColor = getColorForNumber(arrayToDisplay[i]);
             
                 // Fill the bar with its color
@@ -949,7 +949,7 @@ public class QuickSort {
                 g.setColor(Color.BLACK);
                 g.drawRect(x, y, barWidth, barHeight);
             
-                // Draw the array number as a label at the top of the bar
+                //  the array number as a label at the top of the bar
                 g.setColor(Color.BLACK);
                 g.setFont(new Font("Arial", Font.PLAIN, fontSize));
                 String text = String.valueOf(arrayToDisplay[i]);
@@ -978,6 +978,5 @@ public class QuickSort {
             }
         }
     }
-
-   
+    
 }
